@@ -5,7 +5,7 @@ mp_drawing_styles = mp.solutions.drawing_styles
 mp_pose = mp.solutions.pose
 
 # For webcam input:
-filepath = "movie/test1.mp4"
+filepath = "HappyJam_tf/movie/test2.mp4"
 cap = cv2.VideoCapture(filepath) #引数0ならカメラ,filepathで動画
 with mp_pose.Pose(
     model_complexity=1,
