@@ -24,7 +24,7 @@ start_time = time.time()
 tmp_landmarks_list=[]
 
 # 座標履歴を保持するための変数
-history_length = 16
+history_length = 8
 point_history = deque(maxlen=history_length)
 
 # CSVファイルに座標履歴を保存する関数
@@ -32,14 +32,13 @@ def logging_csv(gesture_id, csv_path, point_history_list):
     with open(csv_path, 'a', newline="") as f:
         writer = csv.writer(f)
         writer.writerow([gesture_id, *point_history_list])
-        print("aaaa")
     return
 
 # For webcam input:
 filepath = "./movie/test2.mp4"
 cap = cv2.VideoCapture(filepath) #引数0ならカメラ,filepathで動画
 with mp_pose.Pose(
-    model_complexity=1,
+    model_complexity=0,
     min_detection_confidence=0.5,
     min_tracking_confidence=0.5) as pose:
   while cap.isOpened():
@@ -64,13 +63,14 @@ with mp_pose.Pose(
         mp_pose.POSE_CONNECTIONS,
         landmark_drawing_spec=mp_drawing_styles.get_default_pose_landmarks_style())
 
-    tmp_landmarks_list.append([results.pose_landmarks.landmark[0].x,results.pose_landmarks.landmark[0].y])
+    if results.pose_landmarks:
+        tmp_landmarks_list.append([results.pose_landmarks.landmark[0].x,results.pose_landmarks.landmark[0].y])
 
-    for idx in range(11,25):
-        tmp_landmarks_list.append([results.pose_landmarks.landmark[idx].x,results.pose_landmarks.landmark[idx].y])
+        for idx in range(11,23):
+            tmp_landmarks_list.append([results.pose_landmarks.landmark[idx].x,results.pose_landmarks.landmark[idx].y])
 
-    # 人差指の指先座標を履歴に追加
-    point_history.append(tmp_landmarks_list)
+        # 人差指の指先座標を履歴に追加
+        point_history.append(tmp_landmarks_list)
 
     if len(point_history) == history_length:
         point_history_list = list(itertools.chain.from_iterable(point_history))
