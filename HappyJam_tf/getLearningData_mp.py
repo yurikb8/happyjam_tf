@@ -5,6 +5,8 @@ from collections import deque
 import time
 import argparse
 import itertools
+import numpy as np
+import os
 
 #コマンドライン引数
 parser = argparse.ArgumentParser()
@@ -16,22 +18,28 @@ mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 mp_pose = mp.solutions.pose
 
-#csvのパス
-csv_path = './point_history.csv'
-
-start_time = time.time()
-
-tmp_landmarks_list=[]
-
 # 座標履歴を保持するための変数
 history_length = 8
-point_history = deque(maxlen=history_length)
+npz_path='./numpyz/npm.npz'
+if os.path.isfile(npz_path)==False:
+    label = np.empty(([0]),dtype=int)
+    point_history = np.empty(([2, 13, history_length,0]),dtype=float)
+else:
+    npz=np.load(npz_path)
+    label = npz['label']
+    point_history = npz['landmarks']
 
-# CSVファイルに座標履歴を保存する関数
-def logging_csv(gesture_id, csv_path, point_history_list):
-    with open(csv_path, 'a', newline="") as f:
-        writer = csv.writer(f)
-        writer.writerow([gesture_id, *point_history_list])
+tmp_landmarks_list=[]
+tmp_point_history=[]
+
+#csvのパス
+#csv_path = './point_history.csv'
+start_time = time.time()
+
+# npzに座標履歴を保存する関数
+def logging_np(gesture_id,point_history, tmp_point_history):
+    point_history=np.append(tmp_point_history)
+    
     return
 
 # For webcam input:
@@ -57,11 +65,11 @@ with mp_pose.Pose(
     # Draw the pose annotation on the image.
     image.flags.writeable = True
     image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-    mp_drawing.draw_landmarks(
-        image,
-        results.pose_landmarks,
-        mp_pose.POSE_CONNECTIONS,
-        landmark_drawing_spec=mp_drawing_styles.get_default_pose_landmarks_style())
+    #mp_drawing.draw_landmarks(
+    #    image,
+    #    results.pose_landmarks,
+    #    mp_pose.POSE_CONNECTIONS,
+    #    landmark_drawing_spec=mp_drawing_styles.get_default_pose_landmarks_style())
 
     if results.pose_landmarks:
         tmp_landmarks_list.append([results.pose_landmarks.landmark[0].x,results.pose_landmarks.landmark[0].y])
@@ -69,12 +77,11 @@ with mp_pose.Pose(
         for idx in range(11,23):
             tmp_landmarks_list.append([results.pose_landmarks.landmark[idx].x,results.pose_landmarks.landmark[idx].y])
 
-        # 人差指の指先座標を履歴に追加
-        point_history.append(tmp_landmarks_list)
+        # 座標を履歴に追加
+        tmp_point_history.append(tmp_landmarks_list)
 
-    if len(point_history) == history_length:
-        point_history_list = list(itertools.chain.from_iterable(point_history))
-        logging_csv(args.gesture_id, csv_path,point_history_list)
+        if len(tmp_point_history)==history_length:
+            logging_np(args.gesture_id,point_history,tmp_point_history)
 
     # Flip the image horizontally for a selfie-view display.
     cv2.imshow('MediaPipe Pose', cv2.flip(image, 1))
