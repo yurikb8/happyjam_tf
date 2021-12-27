@@ -20,7 +20,7 @@ mp_pose = mp.solutions.pose
 
 # 座標履歴を保持するための変数
 history_length = 8
-npz_path='./numpyz/npm.npz'
+npz_path='npm.npz'
 if os.path.isfile(npz_path)==False:
     label = np.empty(([0]),dtype=int)
     point_history = np.empty(([2, 13, history_length,0]),dtype=float)
@@ -37,9 +37,11 @@ tmp_point_history=[]
 start_time = time.time()
 
 # npzに座標履歴を保存する関数
-def logging_np(gesture_id,point_history, tmp_point_history):
+def logging_np(gesture_id,point_history, tmp_point_history,label):
     point_history=np.dstack(tmp_point_history)
-    
+    np.append(label,gesture_id)
+    np.savez('npm', point_history,label)
+
     return
 
 # For webcam input:
@@ -81,7 +83,7 @@ with mp_pose.Pose(
         tmp_point_history.append(tmp_landmarks_list)
 
         if len(tmp_point_history)==history_length:
-            logging_np(args.gesture_id,point_history,tmp_point_history)
+            logging_np(args.gesture_id,point_history,tmp_point_history,label)
 
     # Flip the image horizontally for a selfie-view display.
     cv2.imshow('MediaPipe Pose', cv2.flip(image, 1))
