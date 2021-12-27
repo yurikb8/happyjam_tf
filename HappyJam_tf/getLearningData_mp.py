@@ -1,7 +1,6 @@
 import cv2
 import mediapipe as mp
 import csv
-from collections import deque
 import time
 import argparse
 import itertools
@@ -19,7 +18,7 @@ mp_drawing_styles = mp.solutions.drawing_styles
 mp_pose = mp.solutions.pose
 
 # 座標履歴を保持するための変数
-history_length = 8
+history_length = 16
 npz_path='npm.npz'
 if os.path.isfile(npz_path)==False:
     label = np.empty(([0]),dtype=int)
@@ -40,7 +39,7 @@ start_time = time.time()
 def logging_np(gesture_id,point_history, tmp_point_history,label):
     point_history=np.dstack(tmp_point_history)
     np.append(label,gesture_id)
-    np.savez('npm', point_history,label)
+    np.savez('npm', landmarks=point_history,label=label)
 
     return
 
