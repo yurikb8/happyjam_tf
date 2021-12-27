@@ -38,7 +38,7 @@ start_time = time.time()
 
 # npzに座標履歴を保存する関数
 def logging_np(gesture_id,point_history, tmp_point_history):
-    point_history=np.append(tmp_point_history)
+    point_history=np.dstack(tmp_point_history)
     
     return
 
