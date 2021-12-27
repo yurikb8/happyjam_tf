@@ -21,14 +21,13 @@ mp_pose = mp.solutions.pose
 history_length = 16
 npz_path='npm.npz'
 if os.path.isfile(npz_path)==False:
-    label = np.empty(([0]),dtype=int)
-    point_history = np.empty(([2, 13, history_length,0]),dtype=float)
+    label = np.zeros(([0]),dtype=int)
+    point_history = np.zeros(([0,history_length,13,2]),dtype=float)
 else:
     npz=np.load(npz_path)
     label = npz['label']
     point_history = npz['landmarks']
 
-tmp_landmarks_list=[]
 tmp_point_history=[]
 
 #csvのパス
@@ -37,8 +36,10 @@ start_time = time.time()
 
 # npzに座標履歴を保存する関数
 def logging_np(gesture_id,point_history, tmp_point_history,label):
-    point_history=np.dstack(tmp_point_history)
-    np.append(label,gesture_id)
+    tmp=[]
+    tmp.append(tmp_point_history)
+    point_history=np.append(point_history,tmp,axis=0)
+    label=np.append(label,gesture_id)
     np.savez('npm', landmarks=point_history,label=label)
 
     return
@@ -73,6 +74,7 @@ with mp_pose.Pose(
     #    landmark_drawing_spec=mp_drawing_styles.get_default_pose_landmarks_style())
 
     if results.pose_landmarks:
+        tmp_landmarks_list=[]
         tmp_landmarks_list.append([results.pose_landmarks.landmark[0].x,results.pose_landmarks.landmark[0].y])
 
         for idx in range(11,23):
@@ -83,6 +85,7 @@ with mp_pose.Pose(
 
         if len(tmp_point_history)==history_length:
             logging_np(args.gesture_id,point_history,tmp_point_history,label)
+            tmp_point_history=[]
 
     # Flip the image horizontally for a selfie-view display.
     cv2.imshow('MediaPipe Pose', cv2.flip(image, 1))
