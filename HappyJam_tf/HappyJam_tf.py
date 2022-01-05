@@ -43,10 +43,18 @@ model.fit(train_dataset, epochs=10)
 model.evaluate(test_dataset)
 
 #学習確認用
-predict_result = model.predict(np.array([test_examples[5]]))
+predict_result = model.predict(np.array([test_examples[0]]))
 print(np.squeeze(predict_result))
 print(np.argmax(np.squeeze(predict_result)))
 
 # モデル全体を SavedModel として保存
 
 model.save('saved_model/my_model')
+
+#tflite変換
+tflite_save_path = './gesture_classifier.tflite'
+converter = tf.lite.TFLiteConverter.from_keras_model(model)
+converter.optimizations = [tf.lite.Optimize.DEFAULT]
+tflite_quantized_model = converter.convert()
+open(tflite_save_path, 'wb').write(tflite_quantized_model)
+
