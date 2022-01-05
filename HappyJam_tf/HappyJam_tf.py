@@ -28,7 +28,7 @@ train_dataset = train_dataset.shuffle(SHUFFLE_BUFFER_SIZE).batch(BATCH_SIZE)
 test_dataset = test_dataset.batch(BATCH_SIZE)
 
 model = tf.keras.Sequential([
-    tf.keras.layers.Flatten(input_shape=((data_size,16,13,2), data_size)),
+    tf.keras.layers.Flatten(input_shape=(16,13,2)),
     tf.keras.layers.Dense(128, activation='relu'),
     tf.keras.layers.Dense(10)
 ])
