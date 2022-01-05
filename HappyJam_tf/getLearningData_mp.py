@@ -6,6 +6,7 @@ import argparse
 import itertools
 import numpy as np
 import os
+import math
 
 #コマンドライン引数
 parser = argparse.ArgumentParser()
@@ -30,16 +31,18 @@ else:
 
 tmp_point_history=[]
 
-#csvのパス
-#csv_path = './point_history.csv'
 start_time = time.time()
 
 # npzに座標履歴を保存する関数
 def logging_np(gesture_id,point_history, tmp_point_history,label):
     tmp=[]
-    tmp.append(tmp_point_history)
+    idx_tph=0
+    for cnt in range(math.floor(len(tmp_point_history)/history_length)):
+        tmp.append(tmp_point_history[idx_tph:(idx_tph + history_length)])
+        idx_tph+=history_length
+        label=np.append(label,gesture_id)
+
     point_history=np.append(point_history,tmp,axis=0)
-    label=np.append(label,gesture_id)
     np.savez('npm', landmarks=point_history,label=label)
 
     return
@@ -83,16 +86,13 @@ with mp_pose.Pose(
         # 座標を履歴に追加
         tmp_point_history.append(tmp_landmarks_list)
 
-        if len(tmp_point_history)==history_length:
-            logging_np(args.gesture_id,point_history,tmp_point_history,label)
-            tmp_point_history=[]
-
     # Flip the image horizontally for a selfie-view display.
     cv2.imshow('MediaPipe Pose', cv2.flip(image, 1))
     if cv2.waitKey(1) & 0xFF == 27:
         break
 
     if (time.time() - start_time) > args.time:
+        logging_np(args.gesture_id,point_history,tmp_point_history,label)
         break
 
 cap.release()
