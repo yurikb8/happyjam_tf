@@ -21,7 +21,7 @@ test_labels=label[data_size:][:][:][:]
 train_dataset = tf.data.Dataset.from_tensor_slices((train_examples, train_labels))
 test_dataset = tf.data.Dataset.from_tensor_slices((test_examples, test_labels))
 
-BATCH_SIZE = 64
+BATCH_SIZE = 10
 SHUFFLE_BUFFER_SIZE = 100
 
 train_dataset = train_dataset.shuffle(SHUFFLE_BUFFER_SIZE).batch(BATCH_SIZE)
@@ -37,7 +37,16 @@ model.compile(optimizer=tf.keras.optimizers.RMSprop(),
               loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
               metrics=['sparse_categorical_accuracy'])
 
+model.trainable = True
 model.fit(train_dataset, epochs=10)
 
 model.evaluate(test_dataset)
 
+#学習確認用
+predict_result = model.predict(np.array([test_examples[5]]))
+print(np.squeeze(predict_result))
+print(np.argmax(np.squeeze(predict_result)))
+
+# モデル全体を SavedModel として保存
+
+model.save('saved_model/my_model')
