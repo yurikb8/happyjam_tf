@@ -1,6 +1,8 @@
 import numpy as np
 import tensorflow as tf
 import math
+import tensorflowjs as tfjs
+
 
 #npzのロード
 path ='npm.npz'
@@ -58,3 +60,5 @@ converter.optimizations = [tf.lite.Optimize.DEFAULT]
 tflite_quantized_model = converter.convert()
 open(tflite_save_path, 'wb').write(tflite_quantized_model)
 
+#tfjs変換
+tfjs.converters.save_keras_model(model, "./tfjs_model")
