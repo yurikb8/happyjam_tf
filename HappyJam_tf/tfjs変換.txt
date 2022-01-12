@@ -1,4 +1,0 @@
-tensorflowjs_converter  --input_format=tf_saved_model  --output_node_names='MobilenetV1/Predictions/Reshape_1' --saved_model_tags=serve  C:\\Users\\yurik\\source\\repos\\yurikb8\\happyjam_tf\\HappyJam_tf\\saved_model\\my_model C:\Users\yurik\source\repos\yurikb8\happyjam_tf\HappyJam_tf\saved_model\\web_model
-
-
-↑を開発者コマンドプロンプトでenvに入って実行

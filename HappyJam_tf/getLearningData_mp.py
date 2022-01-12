@@ -10,7 +10,7 @@ import math
 
 #コマンドライン引数
 parser = argparse.ArgumentParser()
-parser.add_argument("--gesture_id", type=int, default=0) #ラベル種別 0=静止, 1=演奏
+parser.add_argument("--gesture_id", type=int, default=1) #ラベル種別 0=静止, 1=guitar 2=drum でデフォルト書き換え
 parser.add_argument("--time", type=int, default=10) #録画時間(sec)
 args = parser.parse_args()
 
@@ -48,7 +48,7 @@ def logging_np(gesture_id,point_history, tmp_point_history,label):
     return
 
 # For webcam input:
-filepath = "./movie/test2.mp4"
+filepath = "./movie/test1.mp4"
 cap = cv2.VideoCapture(filepath) #引数0ならカメラ,filepathで動画
 with mp_pose.Pose(
     model_complexity=0,
